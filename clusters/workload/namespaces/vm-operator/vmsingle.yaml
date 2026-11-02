@@ -1,0 +1,25 @@
+# Только для локальных алертов; долгое хранение — в хабе.
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMSingle
+metadata:
+  name: workload
+spec:
+  image:
+    tag: v1.155.0
+  replicaCount: 1
+  useStrictSecurity: true
+  retentionPeriod: 7d
+  storage:
+    storageClassName: local-path
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 10Gi
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 200m
+      memory: 512Mi

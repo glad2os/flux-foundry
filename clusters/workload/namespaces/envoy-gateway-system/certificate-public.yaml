@@ -1,0 +1,19 @@
+# Выпустится после переключения DNS на Gateway public.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: app-example-com
+spec:
+  secretName: app-example-com-tls
+  dnsNames:
+    - app.example.com
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
+  usages:
+    - server auth
+    - digital signature
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt

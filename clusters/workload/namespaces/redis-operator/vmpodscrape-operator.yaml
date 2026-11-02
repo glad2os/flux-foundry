@@ -1,0 +1,10 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMPodScrape
+metadata:
+  name: redis-operator
+spec:
+  selector:
+    matchLabels:
+      name: redis-operator
+  podMetricsEndpoints:
+    - port: metrics

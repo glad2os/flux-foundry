@@ -1,0 +1,24 @@
+# example-app (пример — podinfo). Своё приложение — копия каталога namespace; не нужна БД или кэш — уберите postgres.yaml
+# или redis.yaml вместе с их NetworkPolicy.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: example
+resources:
+  - namespace.yaml
+  - image-automation.yaml
+  - oci-repository.yaml
+  - vault-secrets.yaml
+  - postgres.yaml
+  - redis.yaml
+  - network-policy.yaml
+  - release.yaml
+  - vmpodscrape.yaml
+  - http-route.yaml
+  - tcp-route.yaml
+# Хэш в имени ConfigMap: правка values обновляет релиз.
+configMapGenerator:
+  - name: example-app-values
+    files:
+      - values.yaml=values.yaml
+configurations:
+  - kustomizeconfig.yaml

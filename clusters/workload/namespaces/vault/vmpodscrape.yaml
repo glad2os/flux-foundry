@@ -1,0 +1,15 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMPodScrape
+metadata:
+  name: vault
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vault
+      component: server
+  podMetricsEndpoints:
+    - port: http
+      path: /v1/sys/metrics
+      params:
+        format:
+          - prometheus

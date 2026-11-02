@@ -1,0 +1,49 @@
+# Сборка и проверка схем всех namespace (scripts/validate.sh), в PR — diff собранных манифестов.
+name: validate
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: fluxcd/flux2/action@main
+      - name: Install kustomize, kubeconform, yq
+        run: |
+          set -euo pipefail
+          curl -sSL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.8.3/kustomize_v5.8.3_linux_amd64.tar.gz | tar -xz -C /usr/local/bin kustomize
+          curl -sSL https://github.com/yannh/kubeconform/releases/download/v0.8.0/kubeconform-linux-amd64.tar.gz | tar -xz -C /usr/local/bin kubeconform
+          curl -sSL -o /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v4.54.1/yq_linux_amd64
+          chmod +x /usr/local/bin/yq
+      - name: Validate
+        run: ./scripts/validate.sh
+
+  diff:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Install kustomize
+        run: curl -sSL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.8.3/kustomize_v5.8.3_linux_amd64.tar.gz | sudo tar -xz -C /usr/local/bin kustomize
+      # Что изменится в каждом namespace после merge — в отчёт job'а.
+      - name: Rendered diff
+        run: |
+          set -euo pipefail
+          git worktree add /tmp/base "origin/${GITHUB_BASE_REF}"
+          for dir in clusters/*/namespaces/*/; do
+            new="$(kustomize build --load-restrictor=LoadRestrictionsNone "$dir" 2>&1 || true)"
+            old="$(cd /tmp/base && kustomize build --load-restrictor=LoadRestrictionsNone "$dir" 2>/dev/null || true)"
+            if ! d="$(diff -u <(echo "$old") <(echo "$new"))"; then
+              { echo "### $dir"; echo '```diff'; echo "$d"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done

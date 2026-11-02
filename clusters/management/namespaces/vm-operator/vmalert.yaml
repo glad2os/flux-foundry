@@ -1,0 +1,36 @@
+# remoteWrite/remoteRead восстанавливают состояние алертов после рестарта.
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMAlert
+metadata:
+  name: management
+spec:
+  image:
+    tag: v1.155.0
+  replicaCount: 1
+  useStrictSecurity: true
+  selectAllByDefault: true
+  evaluationInterval: 30s
+  externalLabels:
+    cluster: management
+  datasource:
+    url: http://vmselect-management.vm-operator.svc:8481/select/0/prometheus
+  remoteRead:
+    url: http://vmselect-management.vm-operator.svc:8481/select/0/prometheus
+  remoteWrite:
+    url: http://vminsert-management.vm-operator.svc:8480/insert/0/prometheus
+  notifiers:
+    - url: http://vmalertmanager-management.vm-operator.svc:9093
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+  configReloaderResources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 50m
+      memory: 64Mi

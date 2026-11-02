@@ -1,0 +1,8 @@
+# Остальное — значения чарта по умолчанию (hostNetwork, hostPID, hostPath /).
+fullnameOverride: node-exporter
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    memory: 128Mi

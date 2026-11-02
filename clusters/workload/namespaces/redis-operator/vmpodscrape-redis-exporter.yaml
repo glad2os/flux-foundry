@@ -1,0 +1,18 @@
+# Сайдкары redis_exporter у Redis во всех namespace: оператор ставит подам метку redis_setup_type.
+# Доступ VMAgent к 9121 открывает NetworkPolicy namespace приложения.
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMPodScrape
+metadata:
+  name: redis-exporter
+spec:
+  namespaceSelector:
+    any: true
+  selector:
+    matchExpressions:
+      - key: redis_setup_type
+        operator: Exists
+  podMetricsEndpoints:
+    - portNumber: 9121
+      relabelConfigs:
+        - sourceLabels: [__meta_kubernetes_pod_label_app]
+          targetLabel: redis

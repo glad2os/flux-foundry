@@ -1,0 +1,23 @@
+fullnameOverride: vm-operator
+crds:
+  enabled: false
+  plain: false
+# Для PSS restricted не хватает только seccompProfile.
+podSecurityContext:
+  enabled: true
+  fsGroup: 2000
+  runAsNonRoot: true
+  runAsUser: 1000
+  seccompProfile:
+    type: RuntimeDefault
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    memory: 256Mi
+admissionWebhooks:
+  certManager:
+    enabled: true
+serviceMonitor:
+  enabled: true

@@ -1,0 +1,43 @@
+# Данные workload: tenant 1 (метрики) и AccountID 1 (логи). Новый spoke — своя пара источников.
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: victoriametrics-workload
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+  datasource:
+    name: VictoriaMetrics workload
+    uid: victoriametrics-workload
+    type: prometheus
+    access: proxy
+    url: http://vmselect-management.vm-operator.svc:8481/select/1/prometheus
+    jsonData:
+      httpMethod: POST
+      timeInterval: 30s
+---
+# Tenant — заголовками; в Grafana их можно задать только через secureJsonData.
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: victorialogs-workload
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+  plugins:
+    - name: victoriametrics-logs-datasource
+      version: 0.33.1
+  datasource:
+    name: VictoriaLogs workload
+    uid: victorialogs-workload
+    type: victoriametrics-logs-datasource
+    access: proxy
+    url: http://vlsingle-management.vm-operator.svc:9428
+    jsonData:
+      httpHeaderName1: AccountID
+      httpHeaderName2: ProjectID
+    secureJsonData:
+      httpHeaderValue1: "1"
+      httpHeaderValue2: "0"

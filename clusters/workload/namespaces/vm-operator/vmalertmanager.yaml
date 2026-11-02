@@ -1,0 +1,36 @@
+# Конфиг — Secret alertmanager-config из Vault (vault-secrets.yaml). Алерты workload уходят отсюда, а не через хаб:
+# обрыв связи с management их не глушит.
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMAlertmanager
+metadata:
+  name: workload
+spec:
+  image:
+    tag: v0.34.2
+  replicaCount: 1
+  useStrictSecurity: true
+  # Тишины переживают рестарт.
+  storage:
+    volumeClaimTemplate:
+      spec:
+        storageClassName: local-path
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+  configSecret: alertmanager-config
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+  configReloaderResources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 50m
+      memory: 64Mi

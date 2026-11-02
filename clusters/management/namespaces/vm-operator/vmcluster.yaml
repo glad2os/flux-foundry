@@ -1,0 +1,48 @@
+# По одной реплике без репликации; для нескольких нод — патч. requests = limits: кэши считаются от лимитов.
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMCluster
+metadata:
+  name: management
+spec:
+  # Суффикс -cluster обязателен.
+  clusterVersion: v1.155.0-cluster
+  retentionPeriod: 14d
+  replicationFactor: 1
+  useStrictSecurity: true
+  vmstorage:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: 500m
+        memory: 1Gi
+    # PVC переживает удаление StatefulSet.
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 10Gi
+  vminsert:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+  vmselect:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi

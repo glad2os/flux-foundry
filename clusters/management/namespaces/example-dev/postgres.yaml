@@ -1,0 +1,30 @@
+# Один инстанс и без бэкапов — для прода нужны instances: 3 и barman-cloud + ScheduledBackup.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: example-app-postgres
+  annotations:
+    # Удаление из git не удаляет БД и PVC.
+    kustomize.toolkit.fluxcd.io/prune: disabled
+spec:
+  instances: 1
+
+  bootstrap:
+    initdb:
+      database: example
+      owner: example
+      # Пароль заранее из Vault: тот же пароль — в DSN приложения, оно не ждёт Secret от CNPG.
+      secret:
+        name: example-app-postgres-credentials
+      dataChecksums: true
+
+  storage:
+    storageClass: local-path-retain
+    size: 5Gi
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 1Gi

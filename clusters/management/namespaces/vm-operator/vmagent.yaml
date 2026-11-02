@@ -1,0 +1,43 @@
+# У config-reloader лимиты по умолчанию unlimited — задаём явно.
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMAgent
+metadata:
+  name: management
+spec:
+  image:
+    tag: v1.155.0
+  replicaCount: 1
+  useStrictSecurity: true
+  selectAllByDefault: true
+  scrapeInterval: 30s
+  externalLabels:
+    cluster: management
+  remoteWrite:
+    - url: http://vminsert-management.vm-operator.svc:8480/insert/0/prometheus/api/v1/write
+  # Очередь на диске переживает рестарт и недоступность vminsert.
+  statefulMode: true
+  statefulStorage:
+    volumeClaimTemplate:
+      spec:
+        storageClassName: local-path
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 2Gi
+  extraArgs:
+    remoteWrite.maxDiskUsagePerURL: 1GiB
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  configReloaderResources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 50m
+      memory: 64Mi

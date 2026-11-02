@@ -1,0 +1,15 @@
+# CRD всех операторов (общие для кластеров). Применяются до software: CR не упрутся в отсутствующий тип.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: crds
+  namespace: flux-system
+spec:
+  interval: 10m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./crds
+  prune: true
+  wait: true
+  timeout: 5m

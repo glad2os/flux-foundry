@@ -1,0 +1,28 @@
+# Tenant задаёт VMAuth, а не агент; каждому spoke открыт только путь записи.
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMAuth
+metadata:
+  name: ingest
+spec:
+  image:
+    tag: v1.155.0
+  replicaCount: 1
+  useStrictSecurity: true
+  selectAllByDefault: false
+  userSelector:
+    matchLabels:
+      vmauth: ingest
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+  configReloaderResources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 50m
+      memory: 64Mi

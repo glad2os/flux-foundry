@@ -1,0 +1,16 @@
+# Образец: свой дашборд — копия файла с JSON модели из Grafana (Share → Export → JSON).
+# Пустой {} Grafana не примет: у дашборда обязателен title.
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: example
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+  resyncPeriod: 5m
+  json: |
+    {
+      "title": "Example",
+      "panels": []
+    }

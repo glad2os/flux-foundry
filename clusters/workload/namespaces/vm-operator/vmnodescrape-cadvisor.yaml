@@ -1,0 +1,16 @@
+# Сертификат kubelet самоподписанный — без проверки, как у metrics-server.
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMNodeScrape
+metadata:
+  name: kubelet-cadvisor
+spec:
+  scheme: https
+  port: "10250"
+  path: /metrics/cadvisor
+  bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+  tlsConfig:
+    insecureSkipVerify: true
+  relabelConfigs:
+    - sourceLabels:
+        - __meta_kubernetes_node_name
+      targetLabel: node

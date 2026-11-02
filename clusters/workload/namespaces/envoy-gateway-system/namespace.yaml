@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: envoy-gateway-system
+  labels:
+    # Редирект на https и маршрут solver'а HTTP-01 живут в этом namespace.
+    gateway.platform/public: "true"
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/audit: restricted
+  annotations:
+    # Удаление из git не должно снести вход в кластер.
+    kustomize.toolkit.fluxcd.io/prune: disabled

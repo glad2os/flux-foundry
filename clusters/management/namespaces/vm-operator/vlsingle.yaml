@@ -1,0 +1,28 @@
+# requests = limits: VictoriaLogs считает кэши от лимитов cgroup.
+apiVersion: operator.victoriametrics.com/v1
+kind: VLSingle
+metadata:
+  name: management
+spec:
+  image:
+    tag: v1.53.0
+  replicaCount: 1
+  useStrictSecurity: true
+  retentionPeriod: 14d
+  # Страховка от всплеска логов.
+  retentionMaxDiskSpaceUsageBytes: 8GiB
+  # PVC принадлежит VLSingle: удаление VLSingle (и prune) стирает логи.
+  storage:
+    storageClassName: local-path
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 10Gi
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 200m
+      memory: 512Mi

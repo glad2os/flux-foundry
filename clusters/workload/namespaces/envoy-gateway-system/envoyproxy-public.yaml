@@ -1,0 +1,17 @@
+# Вход из интернета, только 80 и 443.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: public
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyDeployment:
+        replicas: 2
+      envoyService:
+        type: LoadBalancer
+        # Сохраняет адрес клиента; ноды без пода Envoy трафик не принимают — LB должен это учитывать.
+        externalTrafficPolicy: Local
+        labels:
+          lb.platform/pool: public

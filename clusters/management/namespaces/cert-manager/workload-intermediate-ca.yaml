@@ -1,0 +1,28 @@
+# Промежуточный CA для workload: ключ корня с хаба не уходит, утечка даёт подписать только prod.internal.example.com.
+# После продления — заново в Vault workload (README, «Промежуточный CA для spoke»).
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: workload-intermediate-ca
+spec:
+  isCA: true
+  commonName: Platform workload Intermediate CA
+  secretName: workload-intermediate-ca
+  duration: 43800h
+  renewBefore: 720h
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Never
+  usages:
+    - cert sign
+    - crl sign
+    - digital signature
+  nameConstraints:
+    critical: true
+    permitted:
+      dnsDomains:
+        - prod.internal.example.com
+  issuerRef:
+    kind: ClusterIssuer
+    name: internal-ca

@@ -1,0 +1,12 @@
+# job = <namespace>/example-app.
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMPodScrape
+metadata:
+  name: example-app
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: example-app
+  podMetricsEndpoints:
+    - port: http-metrics
+      path: /metrics

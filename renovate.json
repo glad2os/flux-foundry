@@ -1,0 +1,61 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard"
+  ],
+  "flux": {
+    "managerFilePatterns": [
+      "/(^|/)clusters/.+\\.ya?ml$/"
+    ]
+  },
+  "helm-values": {
+    "managerFilePatterns": [
+      "/(^|/)clusters/.+values\\.ya?ml$/"
+    ]
+  },
+  "kubernetes": {
+    "managerFilePatterns": [
+      "/(^|/)clusters/.+/namespaces/.+\\.ya?ml$/"
+    ]
+  },
+  "ignorePaths": [
+    "clusters/*/flux-system/**",
+    "crds/**",
+    "clusters/*/namespaces/kube-state-metrics/{cluster-role,cluster-role-binding,role,role-binding,service,service-account,statefulset}.yaml",
+    "clusters/*/namespaces/kube-system/metrics-server.yaml",
+    "clusters/*/namespaces/cnpg-system/operator.yaml",
+    "clusters/*/namespaces/local-path-storage/local-path-storage.yaml"
+  ],
+  "packageRules": [
+    {
+      "description": "Тег образа приложения ведёт Flux image automation, а не Renovate: сюда — образы своих приложений",
+      "enabled": false,
+      "matchPackageNames": [
+        "ghcr.io/stefanprodan/podinfo"
+      ]
+    },
+    {
+      "description": "Операторы, чьи CRD лежат в crds/: версия чарта и CRD обновляются вместе — Renovate только открывает PR, CRD перегенерировать вручную (README, «Обновление CRD»)",
+      "matchPackageNames": [
+        "cert-manager",
+        "victoria-metrics-operator",
+        "grafana-operator",
+        "redis-operator",
+        "vault-secrets-operator",
+        "envoyproxy/gateway-helm"
+      ],
+      "labels": [
+        "crds"
+      ],
+      "automerge": false
+    },
+    {
+      "description": "Мажорные версии — отдельными PR",
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "dependencyDashboardApproval": true
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: redis-operator
+resources:
+  - namespace.yaml
+  - helm-repository.yaml
+  - release.yaml
+  - vmpodscrape-operator.yaml
+  - vmpodscrape-redis-exporter.yaml
+configMapGenerator:
+  - name: redis-operator-values
+    files:
+      - values.yaml=redis-operator-values.yaml
+configurations:
+  - kustomizeconfig.yaml

@@ -1,0 +1,21 @@
+# Envoy перечитывает Secret сам — рестарт после продления не нужен.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: prod-internal-wildcard
+spec:
+  secretName: prod-internal-wildcard-tls
+  dnsNames:
+    - "*.prod.internal.example.com"
+  duration: 8760h
+  renewBefore: 720h
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
+  usages:
+    - server auth
+    - digital signature
+  issuerRef:
+    kind: ClusterIssuer
+    name: internal-ca

@@ -1,0 +1,73 @@
+# Логи — в management через VMAuth ingest. Очередь на диске до 1GiB переживает обрыв связи.
+# logsPath не по умолчанию: иначе оператор монтирует весь /var/log и /var/lib хоста.
+# root без capabilities вместо useStrictSecurity: uid 65534 не прочитает /var/log/pods.
+apiVersion: operator.victoriametrics.com/v1
+kind: VLAgent
+metadata:
+  name: workload
+spec:
+  image:
+    tag: v1.53.0
+  # CA — Secret: VLAgent умеет только caSecretKeyRef.
+  remoteWrite:
+    - url: https://vm-ingest.mgmt.internal.example.com/insert/native
+      bearerTokenSecret:
+        name: vlagent-remote-write-management
+        key: token
+      tlsConfig:
+        caSecretKeyRef:
+          name: internal-ca
+          key: ca.crt
+      maxDiskUsage: 1GiB
+  k8sCollector:
+    enabled: true
+    logsPath: /host/log/containers
+    extraFields: '{"cluster":"workload"}'
+    ignoreFields:
+      - kubernetes.container_id
+      - kubernetes.pod_ip
+      - kubernetes.pod_labels.helm.sh/chart
+      - kubernetes.pod_labels.pod-template-hash
+      - kubernetes.pod_labels.controller-revision-hash
+      - kubernetes.pod_labels.pod-template-generation
+      - kubernetes.pod_labels.statefulset.kubernetes.io/pod-name
+      - kubernetes.pod_labels.apps.kubernetes.io/pod-index
+      - kubernetes.pod_labels.app.kubernetes.io/version
+      - kubernetes.pod_labels.app.kubernetes.io/managed-by
+  volumes:
+    - name: pod-logs
+      hostPath:
+        path: /var/log/pods
+        type: Directory
+    - name: container-logs
+      hostPath:
+        path: /var/log/containers
+        type: Directory
+  volumeMounts:
+    - name: pod-logs
+      mountPath: /var/log/pods
+      readOnly: true
+    - name: container-logs
+      mountPath: /host/log/containers
+      readOnly: true
+  securityContext:
+    runAsUser: 0
+    runAsGroup: 0
+    runAsNonRoot: false
+    seccompProfile:
+      type: RuntimeDefault
+    privileged: false
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+  tolerations:
+    - operator: Exists
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 100m
+      memory: 256Mi

@@ -1,0 +1,36 @@
+# http — HTTP-01 и редирект, https — публичные имена. Маршруты — из namespace с меткой gateway.platform/public.
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: public
+spec:
+  gatewayClassName: envoy
+  infrastructure:
+    parametersRef:
+      group: gateway.envoyproxy.io
+      kind: EnvoyProxy
+      name: public
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              gateway.platform/public: "true"
+    - name: https
+      protocol: HTTPS
+      port: 443
+      hostname: app.example.com
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: app-example-com-tls
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              gateway.platform/public: "true"

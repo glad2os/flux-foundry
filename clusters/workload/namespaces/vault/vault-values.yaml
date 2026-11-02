@@ -1,0 +1,77 @@
+# Секреты раздаёт VSO — injector и CSI не нужны.
+injector:
+  enabled: false
+csi:
+  enabled: false
+
+server:
+  image:
+    repository: docker.io/hashicorp/vault
+    tag: 2.2.1@sha256:962a92876e168d68eaaa24b0b8b49bbce1cb63024060a67bba95cd158a366fc2
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+  dataStorage:
+    size: 10Gi
+    storageClass: local-path-retain
+
+  # Для PSS restricted: seccomp и drop ALL. IPC_LOCK не нужен (disable_mlock).
+  statefulSet:
+    securityContext:
+      pod:
+        runAsNonRoot: true
+        runAsUser: 100
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      container:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+
+  # Нода одна: вторую реплику не даст anti-affinity чарта, а PDB с одной репликой навсегда застопорит drain.
+  # Три ноды — replicas: 3 и disruptionBudget, как на management.
+  ha:
+    enabled: true
+    replicas: 1
+    disruptionBudget:
+      enabled: false
+    raft:
+      enabled: true
+      setNodeId: true
+      config: |
+        ui = true
+        disable_mlock = true
+
+        listener "tcp" {
+          tls_disable = 1
+          address = "[::]:8200"
+          cluster_address = "[::]:8201"
+          # Метрики без токена; снаружи путь закрыт HTTPRoute.
+          telemetry {
+            unauthenticated_metrics_access = true
+          }
+        }
+
+        storage "raft" {
+          path = "/vault/data"
+
+          retry_join {
+            auto_join = "provider=k8s namespace=vault label_selector=\"app.kubernetes.io/name=vault,component=server\""
+            auto_join_scheme = "http"
+          }
+        }
+
+        service_registration "kubernetes" {}
+
+        telemetry {
+          prometheus_retention_time = "60s"
+          disable_hostname = true
+        }

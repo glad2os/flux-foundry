@@ -1,0 +1,10 @@
+# privileged: логи подов читаются через hostPath от root.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vlagent
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/warn: baseline
+    pod-security.kubernetes.io/audit: baseline

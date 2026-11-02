@@ -1,0 +1,12 @@
+# Из crds/ чарта vault-secrets-operator 1.6.2 (helm.releases.hashicorp.com).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - secrets.hashicorp.com_csisecrets.yaml
+  - secrets.hashicorp.com_secrettransformations.yaml
+  - secrets.hashicorp.com_vaultauthglobals.yaml
+  - secrets.hashicorp.com_vaultauths.yaml
+  - secrets.hashicorp.com_vaultconnections.yaml
+  - secrets.hashicorp.com_vaultdynamicsecrets.yaml
+  - secrets.hashicorp.com_vaultpkisecrets.yaml
+  - secrets.hashicorp.com_vaultstaticsecrets.yaml

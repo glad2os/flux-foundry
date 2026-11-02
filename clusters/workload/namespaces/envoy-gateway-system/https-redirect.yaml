@@ -1,0 +1,15 @@
+# Маршрут HTTP-01 (Exact) точнее префикса / — редирект выпуску сертификата не мешает.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: https-redirect
+spec:
+  parentRefs:
+    - name: public
+      sectionName: http
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301

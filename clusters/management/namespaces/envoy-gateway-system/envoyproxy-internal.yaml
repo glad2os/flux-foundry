@@ -1,0 +1,20 @@
+# Вход из VPN. loadBalancerSourceRanges — сеть вашего VPN, это граница входа.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: internal
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyDeployment:
+        replicas: 2
+      envoyService:
+        type: LoadBalancer
+        # Трафик доходит до Envoy с любой ноды, но адрес клиента теряется (SNAT).
+        externalTrafficPolicy: Cluster
+        allocateLoadBalancerNodePorts: false
+        loadBalancerSourceRanges:
+          - 10.8.0.0/16
+        labels:
+          lb.platform/pool: internal

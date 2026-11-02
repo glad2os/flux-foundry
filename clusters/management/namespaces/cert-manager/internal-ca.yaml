@@ -1,0 +1,39 @@
+# Внутренняя зона недоступна Let's Encrypt — свой корень. nameConstraints не дают подписать чужой домен.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned
+spec:
+  selfSigned: {}
+---
+# Перевыпуск корня = переустановка доверия на всех машинах.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: internal-root-ca
+spec:
+  isCA: true
+  commonName: Platform Internal Root CA
+  secretName: internal-root-ca
+  duration: 87600h
+  renewBefore: 720h
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Never
+  nameConstraints:
+    critical: true
+    permitted:
+      dnsDomains:
+        - internal.example.com
+  issuerRef:
+    kind: ClusterIssuer
+    name: selfsigned
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: internal-ca
+spec:
+  ca:
+    secretName: internal-root-ca

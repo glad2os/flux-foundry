@@ -1,0 +1,6 @@
+# CRD — из crds/.
+crds:
+  enabled: false
+# Нужен только при зонах нод.
+topologyInjector:
+  enabled: false

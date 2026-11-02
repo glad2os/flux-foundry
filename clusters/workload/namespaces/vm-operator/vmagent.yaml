@@ -1,0 +1,52 @@
+# Пишет локально и в хаб, у каждого URL своя очередь до 1GiB.
+# URL в метриках vmagent — номером (1 — локальный, 2 — management), адреса скрыты.
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMAgent
+metadata:
+  name: workload
+spec:
+  image:
+    tag: v1.155.0
+  replicaCount: 1
+  useStrictSecurity: true
+  selectAllByDefault: true
+  scrapeInterval: 30s
+  externalLabels:
+    cluster: workload
+  remoteWrite:
+    - url: http://vmsingle-workload.vm-operator.svc:8428/api/v1/write
+    - url: https://vm-ingest.mgmt.internal.example.com/api/v1/write
+      bearerTokenSecret:
+        name: vmagent-remote-write-management
+        key: token
+      tlsConfig:
+        ca:
+          secret:
+            name: internal-ca
+            key: ca.crt
+  statefulMode: true
+  statefulStorage:
+    volumeClaimTemplate:
+      spec:
+        storageClassName: local-path
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 2Gi
+  extraArgs:
+    remoteWrite.maxDiskUsagePerURL: 1GiB
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  configReloaderResources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 50m
+      memory: 64Mi

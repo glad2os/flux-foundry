@@ -1,0 +1,98 @@
+# kube-state-metrics: файлы examples/autosharding тега v2.20.0 без правок (StatefulSet, шарды делят объекты
+# между репликами). Отличия — патчи ниже: namespace, метрики объектов Flux, ресурсы.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: kube-state-metrics
+resources:
+  - namespace.yaml
+  - cluster-role-binding.yaml
+  - cluster-role.yaml
+  - role-binding.yaml
+  - role.yaml
+  - service-account.yaml
+  - service.yaml
+  - statefulset.yaml
+  - vmservicescrape.yaml
+configMapGenerator:
+  - name: kube-state-metrics-custom-resource-state
+    files:
+      - config.yaml=custom-resource-state.yaml
+patches:
+  # Без secrets и configmaps: list Secret по всему кластеру = чтение всех секретов, а секреты здесь приходят из Vault.
+  # test защищает от молчаливого удаления не того элемента, если upstream поменяет порядок.
+  # Объекты Flux (custom-resource-state.yaml): права на их list/watch и на CRD — для обнаружения типов.
+  - target:
+      kind: ClusterRole
+      name: kube-state-metrics
+    patch: |-
+      - op: test
+        path: /rules/0/resources/1
+        value: secrets
+      - op: remove
+        path: /rules/0/resources/1
+      - op: test
+        path: /rules/0/resources/0
+        value: configmaps
+      - op: remove
+        path: /rules/0/resources/0
+      - op: add
+        path: /rules/-
+        value:
+          apiGroups: [apiextensions.k8s.io]
+          resources: [customresourcedefinitions]
+          verbs: [list, watch]
+      - op: add
+        path: /rules/-
+        value:
+          apiGroups:
+            - source.toolkit.fluxcd.io
+            - kustomize.toolkit.fluxcd.io
+            - helm.toolkit.fluxcd.io
+            - notification.toolkit.fluxcd.io
+            - image.toolkit.fluxcd.io
+          resources:
+            - gitrepositories
+            - buckets
+            - helmrepositories
+            - helmcharts
+            - ocirepositories
+            - kustomizations
+            - helmreleases
+            - alerts
+            - providers
+            - receivers
+            - imagerepositories
+            - imagepolicies
+            - imageupdateautomations
+          verbs: [list, watch]
+  - target:
+      kind: StatefulSet
+      name: kube-state-metrics
+    patch: |-
+      # Коллекторы по умолчанию v2.20.0 (pkg/options/resource.go) без secrets и configmaps: прав на них нет.
+      - op: add
+        path: /spec/template/spec/containers/0/args/-
+        value: --resources=certificatesigningrequests,cronjobs,daemonsets,deployments,endpointslices,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingadmissionpolicies,mutatingadmissionpolicybindings,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumes,persistentvolumeclaims,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,services,statefulsets,storageclasses,validatingadmissionpolicies,validatingadmissionpolicybindings,validatingwebhookconfigurations,volumeattachments
+      - op: add
+        path: /spec/template/spec/containers/0/args/-
+        value: --custom-resource-state-config-file=/etc/kube-state-metrics/custom-resource-state/config.yaml
+      - op: add
+        path: /spec/template/spec/containers/0/volumeMounts
+        value:
+          - name: custom-resource-state
+            mountPath: /etc/kube-state-metrics/custom-resource-state
+            readOnly: true
+      - op: add
+        path: /spec/template/spec/volumes
+        value:
+          - name: custom-resource-state
+            configMap:
+              name: kube-state-metrics-custom-resource-state
+      - op: add
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 256Mi

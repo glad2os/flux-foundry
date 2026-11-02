@@ -1,0 +1,14 @@
+# Postgres прода для администраторов из VPN; TLS — сертификат CNPG (serverAltDNSNames в postgres.yaml).
+apiVersion: gateway.networking.k8s.io/v1
+kind: TCPRoute
+metadata:
+  name: example-app-postgres
+spec:
+  parentRefs:
+    - name: internal
+      namespace: envoy-gateway-system
+      sectionName: example-postgres
+  rules:
+    - backendRefs:
+        - name: example-app-postgres-rw
+          port: 5432

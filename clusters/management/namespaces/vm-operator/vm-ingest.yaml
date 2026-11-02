@@ -1,0 +1,62 @@
+# Spoke = два VMUser: свой tenant метрик и свой AccountID логов. extra_label не даёт spoke выдать себя за другой кластер.
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMUser
+metadata:
+  name: workload-metrics
+  labels:
+    vmauth: ingest
+spec:
+  name: workload-metrics
+  tokenRef:
+    name: vmauth-workload-metrics
+    key: token
+  targetRefs:
+    - crd:
+        kind: VMCluster/vminsert
+        name: management
+        namespace: vm-operator
+      paths:
+        - /api/v1/write
+      target_path_suffix: /insert/1/prometheus
+      query_args:
+        - name: extra_label
+          values:
+            - cluster=workload
+---
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMUser
+metadata:
+  name: workload-logs
+  labels:
+    vmauth: ingest
+spec:
+  name: workload-logs
+  tokenRef:
+    name: vmauth-workload-logs
+    key: token
+  targetRefs:
+    - crd:
+        kind: VLSingle
+        name: management
+        namespace: vm-operator
+      paths:
+        - /insert/native
+      headers:
+        - "AccountID: 1"
+        - "ProjectID: 0"
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: vm-ingest
+spec:
+  parentRefs:
+    - name: internal
+      namespace: envoy-gateway-system
+      sectionName: https
+  hostnames:
+    - vm-ingest.mgmt.internal.example.com
+  rules:
+    - backendRefs:
+        - name: vmauth-ingest
+          port: 8427

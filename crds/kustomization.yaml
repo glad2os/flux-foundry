@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+commonAnnotations:
+  kustomize.toolkit.fluxcd.io/prune: disabled
+resources:
+  - cert-manager-v1.21.3
+  - cloudnative-pg-v1.30.1
+  - envoy-gateway-v1.9.3
+  - gateway-api-v1.6.3
+  - grafana-operator-v5.25.0
+  - redis-operator-v0.27.0
+  - vault-secrets-operator-v1.6.2
+  - victoria-metrics-operator-v0.75.2

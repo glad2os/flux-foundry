@@ -1,0 +1,18 @@
+# Всё содержимое кластера — по каталогу на namespace: оператор и его CR лежат вместе.
+# CR, пришедший раньше webhook'а своего оператора, Flux применит со следующей попытки (retryInterval).
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: software
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: crds
+  interval: 10m
+  retryInterval: 2m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./clusters/management/namespaces
+  prune: true
+  timeout: 10m

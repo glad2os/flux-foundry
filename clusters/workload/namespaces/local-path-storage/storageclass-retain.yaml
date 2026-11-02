@@ -1,0 +1,10 @@
+# Для данных: PV переживает удаление PVC.
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-path-retain
+  annotations:
+    kustomize.toolkit.fluxcd.io/prune: disabled
+provisioner: rancher.io/local-path
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain

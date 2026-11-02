@@ -1,0 +1,21 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: example-app
+spec:
+  interval: 10m
+  timeout: 10m
+  releaseName: example-app
+  chartRef:
+    kind: OCIRepository
+    name: example-app
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+      remediateLastFailure: true
+  valuesFrom:
+    - kind: ConfigMap
+      name: example-app-values

@@ -1,0 +1,40 @@
+fullnameOverride: example-app
+
+image:
+  repository: ghcr.io/stefanprodan/podinfo
+  # Тег правит ImageUpdateAutomation через PR (image-automation.yaml) по маркеру.
+  tag: 6.17.0 # {"$imagepolicy": "example:example-app:tag"}
+
+cache: tcp://example-app-redis:6379
+
+# Две реплики на разных нодах и PDB — drain не роняет приложение.
+replicaCount: 2
+podDisruptionBudget:
+  maxUnavailable: 1
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: example-app
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    memory: 256Mi

@@ -1,0 +1,6 @@
+# Из релиза v0.75.2, sha256 62dd3a229eacc620fda55317ced02b3ad2532184facfad29b8e9182f3b196eea.
+# В чарте урезанная схема — здесь полная.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - crds.yaml

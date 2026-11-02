@@ -1,0 +1,18 @@
+# Метрики за kube-rbac-proxy; нужный RBAC у VMAgent уже есть.
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMServiceScrape
+metadata:
+  name: vault-secrets-operator
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vault-secrets-operator
+      app.kubernetes.io/instance: vault-secrets-operator
+      control-plane: controller-manager
+  endpoints:
+    - port: https
+      scheme: https
+      path: /metrics
+      bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+      tlsConfig:
+        insecureSkipVerify: true

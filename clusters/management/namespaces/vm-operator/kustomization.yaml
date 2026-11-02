@@ -1,0 +1,23 @@
+# Новый spoke: VMUser'ы (vm-ingest.yaml), токены (vault-secrets.yaml), absent()-правила, источники в Grafana.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: vm-operator
+resources:
+  - namespace.yaml
+  - helm-repository.yaml
+  - release.yaml
+  - vmcluster.yaml
+  - vmagent.yaml
+  - vmalert.yaml
+  - vmalertmanager.yaml
+  - vlsingle.yaml
+  - vmauth-ingest.yaml
+  - vmnodescrape-cadvisor.yaml
+  - vault-secrets.yaml
+  - vm-ingest.yaml
+configMapGenerator:
+  - name: vm-operator-values
+    files:
+      - values.yaml=vm-operator-values.yaml
+configurations:
+  - kustomizeconfig.yaml

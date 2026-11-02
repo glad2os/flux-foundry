@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: grafana-operator
+resources:
+  - namespace.yaml
+  - helm-repository.yaml
+  - release.yaml
+  - network-policy.yaml
+  - vmservicescrape.yaml
+  - grafana.yaml
+  - datasource-victoriametrics.yaml
+  - datasource-victorialogs.yaml
+  - dashboard-example.yaml
+  - datasources-workload.yaml
+  - http-route.yaml
+  - vault-secrets.yaml
+configMapGenerator:
+  - name: grafana-operator-values
+    files:
+      - values.yaml=grafana-operator-values.yaml
+configurations:
+  - kustomizeconfig.yaml

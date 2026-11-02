@@ -1,0 +1,28 @@
+# namespace объекта Flux попадает в exported_namespace (honorLabels: false).
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMPodScrape
+metadata:
+  name: flux-system
+spec:
+  selector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values:
+          - helm-controller
+          - image-automation-controller
+          - image-reflector-controller
+          - kustomize-controller
+          - notification-controller
+          - source-controller
+          - source-watcher
+  podMetricsEndpoints:
+    - port: http-prom
+      metricRelabelConfigs:
+        # Гистограммы Go с высокой кардинальностью никто не использует.
+        - sourceLabels: [__name__]
+          regex: 'go_gc_(heap_(allocs|frees)_by_size_bytes|pauses_seconds|scan_.+).*'
+          action: drop
+        - sourceLabels: [__name__]
+          regex: 'go_(godebug_.+|sched_pauses_.+|cpu_classes_.+)'
+          action: drop

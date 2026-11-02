@@ -1,0 +1,5 @@
+# Из релиза v5.25.0, sha256 d53519bf6c202427f7a36af6ac9cb05962e2ebde5ed11e8dee5b393710ecaa2e.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - crds.yaml

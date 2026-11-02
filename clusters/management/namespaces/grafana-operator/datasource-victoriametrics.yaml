@@ -1,0 +1,19 @@
+# Tenant 0 — метрики самого management; workload — datasources-workload.yaml.
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: victoriametrics
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+  datasource:
+    name: VictoriaMetrics
+    uid: victoriametrics
+    type: prometheus
+    access: proxy
+    url: http://vmselect-management.vm-operator.svc:8481/select/0/prometheus
+    isDefault: true
+    jsonData:
+      httpMethod: POST
+      timeInterval: 30s

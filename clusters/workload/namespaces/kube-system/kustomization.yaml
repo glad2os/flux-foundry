@@ -1,0 +1,17 @@
+# metrics-server.yaml — components.yaml релиза metrics-server v0.9.1 без правок
+# (sha256 3c7f57cdbee0f57fb0259a150e8f6d6cb4f29d72d1aa5dce8803151dd6d4c2a1). Остаётся в kube-system, как задумано upstream:
+# RoleBinding metrics-server-auth-reader должен жить рядом с Role extension-apiserver-authentication-reader.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: kube-system
+resources:
+  - metrics-server.yaml
+patches:
+  - target:
+      kind: Deployment
+      name: metrics-server
+    patch: |-
+      # Сертификат kubelet по умолчанию самоподписанный. Убрать после serverTLSBootstrap и подписи CSR kubelet.
+      - op: add
+        path: /spec/template/spec/containers/0/args/-
+        value: --kubelet-insecure-tls

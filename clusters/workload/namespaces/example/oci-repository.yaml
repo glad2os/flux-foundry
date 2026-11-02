@@ -1,0 +1,13 @@
+# Мажорная версия чарта может ломать values — переход на неё вручную.
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: example-app
+spec:
+  interval: 10m
+  url: oci://ghcr.io/stefanprodan/charts/podinfo
+  ref:
+    semver: ">=6.0.0 <7.0.0"
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy

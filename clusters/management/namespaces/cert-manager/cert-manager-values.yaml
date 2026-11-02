@@ -1,0 +1,11 @@
+crds:
+  enabled: false
+# nameConstraints у CA (alpha: нужен и контроллеру, и webhook).
+featureGates: NameConstraints=true
+webhook:
+  featureGates: NameConstraints=true
+# HTTP-01 через Gateway API.
+config:
+  apiVersion: controller.config.cert-manager.io/v1alpha1
+  kind: ControllerConfiguration
+  enableGatewayAPI: true

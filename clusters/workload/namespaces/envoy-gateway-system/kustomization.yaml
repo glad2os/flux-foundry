@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: envoy-gateway-system
+resources:
+  - namespace.yaml
+  - oci-repository.yaml
+  - release.yaml
+  - gatewayclass.yaml
+  - vmpodscrape.yaml
+  - vmservicescrape.yaml
+  - certificate-internal.yaml
+  - certificate-public.yaml
+  - envoyproxy-internal.yaml
+  - envoyproxy-public.yaml
+  - gateway-internal.yaml
+  - gateway-public.yaml
+  - https-redirect.yaml
+configMapGenerator:
+  - name: envoy-gateway-values
+    files:
+      - values.yaml=envoy-gateway-values.yaml
+configurations:
+  - kustomizeconfig.yaml

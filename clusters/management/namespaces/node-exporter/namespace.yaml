@@ -1,0 +1,10 @@
+# privileged: чарту нужны hostNetwork, hostPID и hostPath /
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: node-exporter
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/warn: baseline
+    pod-security.kubernetes.io/audit: baseline

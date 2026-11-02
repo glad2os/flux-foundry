@@ -1,0 +1,36 @@
+# Алерты по локальным данным — не зависят от хаба.
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMAlert
+metadata:
+  name: workload
+spec:
+  image:
+    tag: v1.155.0
+  replicaCount: 1
+  useStrictSecurity: true
+  selectAllByDefault: true
+  evaluationInterval: 30s
+  externalLabels:
+    cluster: workload
+  datasource:
+    url: http://vmsingle-workload.vm-operator.svc:8428
+  remoteRead:
+    url: http://vmsingle-workload.vm-operator.svc:8428
+  remoteWrite:
+    url: http://vmsingle-workload.vm-operator.svc:8428
+  notifiers:
+    - url: http://vmalertmanager-workload.vm-operator.svc:9093
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+  configReloaderResources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 50m
+      memory: 64Mi
